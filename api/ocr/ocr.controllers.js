@@ -1,6 +1,9 @@
 exports.ocrCreate = async (req, res, next) => {
   try {
-    res.status(201).json('text');
+    if (req.file) {
+      req.body.image = `${req.file.path}`;
+    }
+    res.status(201).json(req.file);
   } catch (error) {
     next(error);
   }
