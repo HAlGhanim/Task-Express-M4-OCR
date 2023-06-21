@@ -1,19 +1,19 @@
 const tesseract = require("tesseract.js");
 
-tesseract
-  .recognize("http://localhost:8000/media/1687257691539hw.png", "eng")
-  .then(({ data: { text } }) => {
-    console.log(text);
-  });
-
 exports.ocrCreate = async (req, res, next) => {
   try {
     if (req.file) {
       req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
       console.log(req.body.image);
+      const { data: text } = await tesseract.recognize(req.body.image, "eng");
+      const response = {
+        file: req.file,
+        text: text.text.trim(),
+      };
+      return res.status(201).json(response);
     }
-    res.status(201).json(req.file);
+    return res.status(400).json({ error: "No image file provided." });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
